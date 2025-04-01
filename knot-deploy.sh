@@ -46,3 +46,41 @@ pct create $CTID \
   -memory $MEMORY \
   -cores $CPU \
   -net0 name=eth0,bridge=$BRIDGE,firewall=1 \
+  -rootfs $ROOTFS_STORAGE:$DISK \
+  -password knot123 \
+  -unprivileged 1
+
+# Start the container
+pct start $CTID
+
+# Wait for network to be ready
+echo "Waiting for container network to come up..."
+for i in {1..20}; do
+  pct exec $CTID -- ping -c 1 1.1.1.1 > /dev/null 2>&1 && break
+  echo "Waiting for network (\$i)..."
+  sleep 2
+done
+
+# Inject DNS resolver
+pct exec $CTID -- bash -c "echo 'nameserver 1.1.1.1' > /etc/resolv.conf"
+
+# Install Knot Resolver
+pct exec $CTID -- bash -c "apt update && apt upgrade -y"
+pct exec $CTID -- bash -c "apt install -y knot-resolver"
+
+# Configure kresd
+pct exec $CTID -- bash -c "cat <<EOF > /etc/knot-resolver/kresd.conf
+net.listen('0.0.0.0', 53)
+
+policy.add(policy.all(policy.FORWARD('$NEXTDNS_IPV4_1', '$NEXTDNS_IPV4_2')))
+
+cache.size = 100 * MB
+EOF"
+
+# Enable and start kresd
+pct exec $CTID -- systemctl enable kresd
+pct exec $CTID -- systemctl start kresd
+
+# Get container IP
+IP=$(pct exec $CTID -- hostname -I | awk '{print $1}')
+echo "\n🎯 Knot Resolver deployed! Set your LAN DNS to: $IP"
