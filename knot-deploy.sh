@@ -45,10 +45,21 @@ pct create $CTID \
   -hostname $HOSTNAME \
   -memory $MEMORY \
   -cores $CPU \
-  -net0 name=eth0,bridge=$BRIDGE,firewall=1 \
+  -net0 name=eth0,bridge=$BRIDGE,firewall=1,ip=dhcp \
   -rootfs $ROOTFS_STORAGE:$DISK \
   -password knot123 \
   -unprivileged 1
+
+# Force DHCP config in systemd-networkd
+pct mount $CTID
+cat <<EOF > /mnt/pve/$CTID/etc/systemd/network/eth0.network
+[Match]
+Name=eth0
+
+[Network]
+DHCP=yes
+EOF
+pct unmount $CTID
 
 # Start the container
 pct start $CTID
