@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 # Knot Resolver LXC Deploy Script (Proxmox) with NextDNS Forwarding
@@ -52,7 +53,7 @@ pct create $CTID \
 
 # Force DHCP config in systemd-networkd
 pct mount $CTID
-cat <<EOF > /mnt/pve/$CTID/etc/systemd/network/eth0.network
+cat <<EOF > /var/lib/lxc/$CTID/rootfs/etc/systemd/network/eth0.network
 [Match]
 Name=eth0
 
