@@ -61,6 +61,9 @@ for i in {1..20}; do
   sleep 2
 done
 
+# Inject DNS resolver
+pct exec $CTID -- bash -c "echo 'nameserver 1.1.1.1' > /etc/resolv.conf"
+
 # Install Knot Resolver
 pct exec $CTID -- bash -c "apt update && apt upgrade -y"
 pct exec $CTID -- bash -c "apt install -y knot-resolver"
@@ -81,3 +84,4 @@ pct exec $CTID -- systemctl start kresd
 # Get container IP
 IP=$(pct exec $CTID -- hostname -I | awk '{print $1}')
 echo "\n🎯 Knot Resolver deployed! Set your LAN DNS to: $IP"
+
