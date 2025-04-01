@@ -45,7 +45,7 @@ pct create $CTID \
   -hostname $HOSTNAME \
   -memory $MEMORY \
   -cores $CPU \
-  -net0 name=eth0,bridge=$BRIDGE,firewall=1 \
+  -net0 name=eth0,bridge=$BRIDGE,firewall=1,tag=1 \
   -rootfs $ROOTFS_STORAGE:$DISK \
   -password knot123 \
   -unprivileged 1
@@ -84,4 +84,3 @@ pct exec $CTID -- systemctl start kresd
 # Get container IP
 IP=$(pct exec $CTID -- hostname -I | awk '{print $1}')
 echo "\n🎯 Knot Resolver deployed! Set your LAN DNS to: $IP"
-
