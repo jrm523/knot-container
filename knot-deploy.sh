@@ -47,7 +47,7 @@ pct create $CTID \
   -cores $CPU \
   -net0 name=eth0,bridge=$BRIDGE,firewall=1 \
   -rootfs $ROOTFS_STORAGE:$DISK \
-  -password knot \
+  -password knot123 \
   -unprivileged 1
 
 # Start the container
