@@ -53,6 +53,14 @@ pct create $CTID \
 # Start the container
 pct start $CTID
 
+# Wait for network to be ready
+echo "Waiting for container network to come up..."
+for i in {1..20}; do
+  pct exec $CTID -- ping -c 1 1.1.1.1 > /dev/null 2>&1 && break
+  echo "Waiting for network (\$i)..."
+  sleep 2
+done
+
 # Install Knot Resolver
 pct exec $CTID -- bash -c "apt update && apt upgrade -y"
 pct exec $CTID -- bash -c "apt install -y knot-resolver"
